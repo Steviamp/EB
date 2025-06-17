@@ -1,5 +1,6 @@
 using EB.DbContextData;
 using EB.Services;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
