@@ -1,0 +1,6 @@
+@EB_HostAddress = http://localhost:5119
+
+GET {{EB_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
