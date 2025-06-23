@@ -14,15 +14,27 @@ namespace EB.Controllers
             _service = service;
         }
 
-        [HttpPost("upload")]
-        public async Task<IActionResult> UploadExcel(IFormFile file)
+        [HttpPost("disk")]
+        public async Task<IActionResult> ImportFromDisk()
         {
-            if (file == null || file.Length == 0)
-                return BadRequest("File is empty");
+            // Φτιάχνει το path προς το αρχείο
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Uploads", "bank_hours.xlsx");
 
-            await _service.ImportFromExcelAsync(file);
-            return Ok("Imported successfully");
+            try
+            {
+                await _service.ImportFromExcelFromDiskAsync(filePath);
+                return Ok("Η εισαγωγή από φάκελο ολοκληρώθηκε!");
+            }
+            catch (FileNotFoundException ex)
+            {
+                return NotFound($"Δεν βρέθηκε το αρχείο Excel: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Σφάλμα κατά την εισαγωγή: {ex.Message}");
+            }
         }
+
     }
 
 }

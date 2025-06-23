@@ -1,7 +1,7 @@
 ﻿using EB.DbContextData;
 using EB.Models;
 using Microsoft.EntityFrameworkCore;
-using OfficeOpenXml;
+using ClosedXML.Excel;
 
 namespace EB.Services
 {
@@ -14,18 +14,21 @@ namespace EB.Services
             _context = context;
         }
 
-        public async Task ImportFromExcelAsync(IFormFile file)
+        public async Task ImportFromExcelFromDiskAsync(string filePath)
         {
-            using var stream = new MemoryStream();
-            await file.CopyToAsync(stream);
-            using var package = new ExcelPackage(stream);
-            var worksheet = package.Workbook.Worksheets[0];
+            if (!File.Exists(filePath))
+                throw new FileNotFoundException("Excel αρχείο δεν βρέθηκε", filePath);
 
-            for (int row = 2; row <= worksheet.Dimension.End.Row; row++)
+            using var workbook = new XLWorkbook(filePath);
+            var worksheet = workbook.Worksheet(1);
+
+            var rows = worksheet.RowsUsed().Skip(1);
+
+            foreach (var row in rows)
             {
-                var code = worksheet.Cells[row, 1].Text.Trim();
-                var from = TimeSpan.Parse(worksheet.Cells[row, 2].Text);
-                var to = TimeSpan.Parse(worksheet.Cells[row, 3].Text);
+                var code = row.Cell(1).GetString().Trim();
+                var from = TimeSpan.Parse(row.Cell(2).GetString());
+                var to = TimeSpan.Parse(row.Cell(3).GetString());
 
                 var existing = await _context.BankHours.FirstOrDefaultAsync(b => b.Code == code);
                 if (existing != null)

@@ -4,7 +4,7 @@ namespace EB.Services
 {
     public interface IBankHoursService
     {
-        Task ImportFromExcelAsync(IFormFile file);
+        Task ImportFromExcelFromDiskAsync(string filePath);
         Task<BankHours?> GetBankHoursAsync(string code);
     }
 
